@@ -11,6 +11,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/go-hclog"
 	"github.com/konveyor/encryption-object-store-proxy/app"
 	"github.com/pkg/errors"
@@ -54,13 +56,13 @@ func main() {
 
 	s := framework.NewServer().BindFlags(pflag.CommandLine)
 
-	if pluginIdentifier, ok := r.pluginsByID[kindAndName{kind: framework.PluginKindObjectStore, name: "velero.io/aws"}]; ok {
-		log.Info("Regigistering Plugin", "plugin", pluginIdentifier)
+	for _, objStore := range r.pluginsByKind[framework.PluginKindObjectStore] {
+		log.Info("registering encryption plugin", "forwarded-plugin", objStore.Name)
 
-		s.RegisterObjectStore("velero.io/encryption-aws", func(_ logrus.FieldLogger) (interface{}, error) {
-			log.Info("Creating new Plugin for id", "plugin", pluginIdentifier)
-			return app.New(pluginIdentifier), nil
+		s.RegisterObjectStore(fmt.Sprintf("%v-encrypted", objStore.Name), func(_ logrus.FieldLogger) (interface{}, error) {
+			return app.New(objStore), nil
 		})
+
 	}
 	s.Serve()
 }

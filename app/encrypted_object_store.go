@@ -188,7 +188,6 @@ func (e *EncryptedAwsObjectStoreType) CreateSignedURL(bucket, key string, ttl ti
 }
 
 const PodVolumeBackups = "podvolumebackups.json.gz"
-
 const VolumeContents = "tar.gz"
 
 func encryctObjects(key string) bool {
